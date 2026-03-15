@@ -4,29 +4,17 @@ import requests
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# TMDB API KEY
-
 API_KEY = "579034084262bc42447e9861942396dd"
-
-# Load dataset
 
 movies = pd.read_csv("movies.csv")
 
-# Data preprocessing
-
 movies['genres'] = movies['genres'].fillna('')
-movies['genres'] = movies['genres'].str.replace('|', ' ')
-
-# Convert genres to vectors
+movies['genres'] = movies['genres'].str.replace('|',' ')
 
 cv = CountVectorizer()
 matrix = cv.fit_transform(movies['genres'])
 
-# Calculate similarity
-
 similarity = cosine_similarity(matrix)
-
-# Function to fetch poster
 
 def fetch_poster(movie):
 url = f"https://api.themoviedb.org/3/search/movie?api_key={API_KEY}&query={movie}"
@@ -34,29 +22,22 @@ data = requests.get(url).json()
 
 ```
 if len(data["results"]) == 0:
-    return "https://via.placeholder.com/300x450?text=No+Image"
+    return "https://via.placeholder.com/300x450"
 
 poster_path = data["results"][0]["poster_path"]
 
 if poster_path is None:
-    return "https://via.placeholder.com/300x450?text=No+Image"
+    return "https://via.placeholder.com/300x450"
 
 return "https://image.tmdb.org/t/p/w500/" + poster_path
 ```
 
-# Recommendation function
-
 def recommend(movie):
-
-```
 index = movies[movies['title'] == movie].index[0]
 distances = similarity[index]
 
-movies_list = sorted(
-    list(enumerate(distances)),
-    reverse=True,
-    key=lambda x: x[1]
-)[1:6]
+```
+movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
 
 recommended_movies = []
 posters = []
@@ -69,12 +50,10 @@ for i in movies_list:
 return recommended_movies, posters
 ```
 
-# STREAMLIT UI
-
-st.title("🎬 AI Movie Recommendation System")
+st.title("🎬 Movie Recommendation System")
 
 selected_movie = st.selectbox(
-"Select a movie",
+"Choose a movie",
 movies['title'].values
 )
 

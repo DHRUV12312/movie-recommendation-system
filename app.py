@@ -17,13 +17,14 @@ matrix = cv.fit_transform(movies['genres'])
 similarity = cosine_similarity(matrix)
 
 def fetch_poster(movie):
-url = "https://api.themoviedb.org/3/search/movie"
-params = {
-"api_key": API_KEY,
-"query": movie
-}
 
 ```
+url = "https://api.themoviedb.org/3/search/movie"
+params = {
+    "api_key": API_KEY,
+    "query": movie
+}
+
 data = requests.get(url, params=params).json()
 
 if len(data["results"]) == 0:

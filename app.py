@@ -1,97 +1,73 @@
-import pandas as pd
 import streamlit as st
 import requests
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 
-API_KEY = "579034084262bc42447e9861942396dd"
+# TMDB API key
+API_KEY = "YOUR_API_KEY"
 
-movies = pd.read_csv("movies.csv")
+# sample movie list
+movies = [
+    "Avatar",
+    "Titanic",
+    "The Dark Knight",
+    "Avengers",
+    "Inception",
+    "Interstellar",
+    "Joker",
+    "Frozen",
+    "Spider-Man",
+    "Iron Man"
+]
 
-movies['genres'] = movies['genres'].fillna('')
-movies['genres'] = movies['genres'].str.replace('|', ' ')
 
-cv = CountVectorizer()
-matrix = cv.fit_transform(movies['genres'])
-
-similarity = cosine_similarity(matrix)
-
+# function to fetch movie poster
 def fetch_poster(movie):
 
-```
-url = "https://api.themoviedb.org/3/search/movie"
-params = {
-    "api_key": API_KEY,
-    "query": movie
-}
+    url = "https://api.themoviedb.org/3/search/movie"
 
-data = requests.get(url, params=params).json()
+    params = {
+        "api_key": API_KEY,
+        "query": movie
+    }
 
-if len(data["results"]) == 0:
-    return "https://via.placeholder.com/300x450"
+    data = requests.get(url, params=params).json()
 
-poster_path = data["results"][0]["poster_path"]
+    if data["results"]:
+        poster_path = data["results"][0]["poster_path"]
+        return "https://image.tmdb.org/t/p/w500/" + poster_path
 
-if poster_path is None:
-    return "https://via.placeholder.com/300x450"
+    return None
 
-return "https://image.tmdb.org/t/p/w500/" + poster_path
-```
 
+# recommend movies
 def recommend(movie):
 
-```
-index = movies[movies['title'] == movie].index[0]
-distances = similarity[index]
+    recommendations = []
 
-movies_list = sorted(
-    list(enumerate(distances)),
-    reverse=True,
-    key=lambda x: x[1]
-)[1:6]
+    for m in movies:
+        if m != movie:
+            recommendations.append(m)
 
-recommended_movies = []
-posters = []
+    return recommendations[:5]
 
-for i in movies_list:
-    movie_title = movies.iloc[i[0]].title
-    recommended_movies.append(movie_title)
-    posters.append(fetch_poster(movie_title))
 
-return recommended_movies, posters
-```
-
+# Streamlit UI
 st.title("🎬 Movie Recommendation System")
 
-selected_movie = st.selectbox(
-"Choose a movie",
-movies['title'].values
-)
+selected_movie = st.selectbox("Choose a movie", movies)
 
 if st.button("Recommend"):
 
-```
-names, posters = recommend(selected_movie)
+    names = recommend(selected_movie)
 
-col1, col2, col3, col4, col5 = st.columns(5)
+    cols = st.columns(5)
 
-with col1:
-    st.image(posters[0])
-    st.write(names[0])
+    for i in range(len(names)):
 
-with col2:
-    st.image(posters[1])
-    st.write(names[1])
+        with cols[i]:
 
-with col3:
-    st.image(posters[2])
-    st.write(names[2])
+            poster = fetch_poster(names[i])
 
-with col4:
-    st.image(posters[3])
-    st.write(names[3])
+            if poster:
+                st.image(poster)
 
-with col5:
-    st.image(posters[4])
-    st.write(names[4])
-```
+            st.write(names[i])

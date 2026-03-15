@@ -58,4 +58,6 @@ if st.button("Recommend"):
     st.subheader("Recommended Movies:")
     
     for movie in recommendations:
-        st.write(movie)
+       poster = fetch_poster(movie)
+       st.image(poster, width=200)
+       st.write(movie)

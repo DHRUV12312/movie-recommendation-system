@@ -3,6 +3,16 @@ import streamlit as st
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+
+API_KEY = "579034084262bc42447e9861942396dd"
+
+def fetch_poster(movie):
+    url = f"https://api.themoviedb.org/3/search/movie?api_key={API_KEY}&query={movie}"
+    data = requests.get(url).json()
+    poster_path = data["results"][0]["poster_path"]
+    return "https://image.tmdb.org/t/p/w500/" + poster_path
+
+
 # Load dataset
 movies = pd.read_csv("movies.csv")
 

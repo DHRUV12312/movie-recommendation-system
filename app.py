@@ -1,83 +1,50 @@
-import streamlit as st
 import pandas as pd
-import pickle
-import requests
+import streamlit as st
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
-# your TMDB api key
-API_KEY = "579034084262bc42447e9861942396dd"
-
-# load files
+# Load dataset
 movies = pd.read_csv("movies.csv")
-similarity = pickle.load(open("similarity.pkl", "rb"))
 
+# Clean data
+movies['genres'] = movies['genres'].fillna('')
+movies['genres'] = movies['genres'].str.replace('|', ' ', regex=False)
 
-# fetch poster using API
-def fetch_poster(movie_id):
+# Vectorization
+cv = CountVectorizer()
+matrix = cv.fit_transform(movies['genres'])
 
-    url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={API_KEY}&language=en-US"
-    data = requests.get(url).json()
+# Similarity
+similarity = cosine_similarity(matrix)
 
-    poster_path = data["poster_path"]
-
-    full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
-
-    return full_path
-
-
-# recommend function
+# Recommendation function
 def recommend(movie):
-
-    movie_index = movies[movies['title'] == movie].index[0]
-
-    distances = similarity[movie_index]
-
+    index = movies[movies['title'] == movie].index[0]
+    distances = similarity[index]
     movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
-
+    
     recommended_movies = []
-    recommended_posters = []
-
+    
     for i in movies_list:
-
-        movie_id = movies.iloc[i[0]].movie_id
-
         recommended_movies.append(movies.iloc[i[0]].title)
-
-        recommended_posters.append(fetch_poster(movie_id))
-
-    return recommended_movies, recommended_posters
+        
+    return recommended_movies
 
 
-# UI
+# ---------------- UI ---------------- #
+
 st.title("🎬 Movie Recommendation System")
 
-selected_movie_name = st.selectbox(
-    "Select a movie",
+selected_movie = st.selectbox(
+    "Choose a movie",
     movies['title'].values
 )
 
-
 if st.button("Recommend"):
-
-    names, posters = recommend(selected_movie_name)
-
-    col1, col2, col3, col4, col5 = st.columns(5)
-
-    with col1:
-        st.text(names[0])
-        st.image(posters[0])
-
-    with col2:
-        st.text(names[1])
-        st.image(posters[1])
-
-    with col3:
-        st.text(names[2])
-        st.image(posters[2])
-
-    with col4:
-        st.text(names[3])
-        st.image(posters[3])
-
-    with col5:
-        st.text(names[4])
-        st.image(posters[4])
+    
+    recommendations = recommend(selected_movie)
+    
+    st.subheader("Recommended Movies:")
+    
+    for movie in recommendations:
+        st.write(movie)

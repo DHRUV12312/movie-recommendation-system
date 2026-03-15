@@ -33,11 +33,16 @@ return "https://image.tmdb.org/t/p/w500/" + poster_path
 ```
 
 def recommend(movie):
+
+```
 index = movies[movies['title'] == movie].index[0]
 distances = similarity[index]
 
-```
-movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
+movies_list = sorted(
+    list(enumerate(distances)),
+    reverse=True,
+    key=lambda x: x[1]
+)[1:6]
 
 recommended_movies = []
 posters = []

@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # TMDB API key
-API_KEY = "YOUR_API_KEY"
+API_KEY = "579034084262bc42447e9861942396dd"
 
 # sample movie list
 movies = [

@@ -20,8 +20,6 @@ def fetch_poster(movie):
     return "https://image.tmdb.org/t/p/w500/" + poster_path
 
 
-# Load dataset
-movies = pd.read_csv("movies.csv")
 
 # Clean data
 movies['genres'] = movies['genres'].fillna('')

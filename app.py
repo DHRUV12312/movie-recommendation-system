@@ -1,10 +1,16 @@
 import pandas as pd
 import streamlit as st
 import requests
+import kagglehub
+
+
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+# Download latest version
+path = kagglehub.dataset_download("gsimonx37/letterboxd")
 
+print("Path to dataset files:", path)
 API_KEY = "579034084262bc42447e9861942396dd"
 
 def fetch_poster(movie):
